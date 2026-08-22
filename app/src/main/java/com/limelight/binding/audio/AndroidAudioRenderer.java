@@ -36,7 +36,11 @@ public class AndroidAudioRenderer implements AudioRenderer {
         }
         else {
             AudioAttributes.Builder attributesBuilder = new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_GAME);
+                    // Some Android TV audio HALs fail to route USAGE_GAME to
+                    // the internal speaker. USAGE_MEDIA uses the normal
+                    // projector/media-player output path.
+                    .setUsage(isProjectorAudioWorkaround() ?
+                            AudioAttributes.USAGE_MEDIA : AudioAttributes.USAGE_GAME);
             AudioFormat format = new AudioFormat.Builder()
                     .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
                     .setSampleRate(sampleRate)
@@ -45,7 +49,7 @@ public class AndroidAudioRenderer implements AudioRenderer {
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                 // Use FLAG_LOW_LATENCY on L through N
-                if (lowLatency) {
+                if (lowLatency && !isProjectorAudioWorkaround()) {
                     attributesBuilder.setFlags(AudioAttributes.FLAG_LOW_LATENCY);
                 }
             }
@@ -58,7 +62,7 @@ public class AndroidAudioRenderer implements AudioRenderer {
                         .setBufferSizeInBytes(bufferSize);
 
                 // Use PERFORMANCE_MODE_LOW_LATENCY on O and later
-                if (lowLatency) {
+                if (lowLatency && !isProjectorAudioWorkaround()) {
                     trackBuilder.setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY);
                 }
 
@@ -72,6 +76,11 @@ public class AndroidAudioRenderer implements AudioRenderer {
                         AudioManager.AUDIO_SESSION_ID_GENERATE);
             }
         }
+    }
+
+    private boolean isProjectorAudioWorkaround() {
+        return Build.DEVICE.equalsIgnoreCase("K990CN") ||
+                Build.PRODUCT.equalsIgnoreCase("K990CN");
     }
 
     @Override
