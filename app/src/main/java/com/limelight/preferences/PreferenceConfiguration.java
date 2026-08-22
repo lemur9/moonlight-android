@@ -546,13 +546,6 @@ public class PreferenceConfiguration {
         }
 
         String audioConfig = prefs.getString(AUDIO_CONFIG_PREF_STRING, DEFAULT_AUDIO_CONFIG);
-        // The K990CN projector only has stereo internal speakers. Its audio HAL
-        // accepts a surround AudioTrack but drops it silently, so persist and
-        // request stereo for every stream.
-        if (Build.DEVICE.equalsIgnoreCase("K990CN") || Build.PRODUCT.equalsIgnoreCase("K990CN")) {
-            audioConfig = DEFAULT_AUDIO_CONFIG;
-            prefs.edit().putString(AUDIO_CONFIG_PREF_STRING, audioConfig).apply();
-        }
         if (audioConfig.equals("71")) {
             config.audioConfiguration = MoonBridge.AUDIO_CONFIGURATION_71_SURROUND;
         }
