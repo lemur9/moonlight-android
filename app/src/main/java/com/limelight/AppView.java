@@ -632,12 +632,11 @@ public class AppView extends Activity implements AdapterFragmentCallbacks {
                                     long id) {
                 AppObject app = (AppObject) appGridAdapter.getItem(pos);
 
-                // Only open the context menu if something is running, otherwise start it
-                if (lastRunningAppId != 0) {
-                    openContextMenu(arg1);
-                } else {
-                    ServerHelper.doStart(AppView.this, app.app, computer, managerBinder);
-                }
+                // Android TV firmware renders the legacy context menu as an
+                // empty dialog when a game is already running. Starting the
+                // selected app directly gives the remote a reliable action;
+                // ServerHelper/NvConnection handles resume or quit-and-launch.
+                ServerHelper.doStart(AppView.this, app.app, computer, managerBinder);
             }
         });
         UiHelper.applyStatusBarPadding(listView);
