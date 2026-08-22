@@ -41,7 +41,7 @@ public class SpinnerDialog implements Runnable,OnCancelListener {
                 SpinnerDialog dialog = i.next();
                 if (dialog.activity == activity) {
                     i.remove();
-                    if (dialog.progress.isShowing()) {
+                    if (dialog.progress != null && dialog.progress.isShowing()) {
                         dialog.progress.dismiss();
                     }
                 }

@@ -31,7 +31,7 @@ public class Dialog implements Runnable {
     {
         synchronized (rundownDialogs) {
             for (Dialog d : rundownDialogs) {
-                if (d.alert.isShowing()) {
+                if (d.alert != null && d.alert.isShowing()) {
                     d.alert.dismiss();
                 }
             }

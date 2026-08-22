@@ -119,6 +119,9 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     private NvConnection conn;
     private SpinnerDialog spinner;
     private boolean displayedFailureDialog = false;
+    // Connection callbacks can arrive after onStop() while the old stream is
+    // shutting down. Do not surface dialogs from that stale activity.
+    private volatile boolean stopping = false;
     private boolean connecting = false;
     private boolean connected = false;
     private boolean autoEnterPip = false;
@@ -1104,6 +1107,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
     @Override
     protected void onStop() {
+        stopping = true;
         super.onStop();
 
         SpinnerDialog.closeDialogs(this);
@@ -2231,6 +2235,9 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (stopping || isFinishing() || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && isDestroyed())) {
+                    return;
+                }
                 if (spinner != null) {
                     spinner.setMessage(getResources().getString(R.string.conn_starting) + " " + stage);
                 }
@@ -2274,6 +2281,9 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (stopping || isFinishing() || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && isDestroyed())) {
+                    return;
+                }
                 if (spinner != null) {
                     spinner.dismiss();
                     spinner = null;
@@ -2315,6 +2325,9 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (stopping || isFinishing() || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && isDestroyed())) {
+                    return;
+                }
                 // Let the display go to sleep now
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
